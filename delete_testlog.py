@@ -1,10 +1,11 @@
 #-*-coding:utf-8-*-
 
 ###
-# ver:     0.01
-# date:    2017-08-21
+# ver:     0.02
+# date:    2017-08-24
 # author:  Charles.Z
 # change log:
+#     unique item in StatUser bug fixed by specifying time
 ###
 
 from __future__ import print_function
@@ -18,6 +19,7 @@ import datetime
 import hashlib
 from random import Random
 import sys
+import datetime
 
 # leancloud.init("Fhdcn0x7iznoVTkg6kzthl6w-gzGzoHsz", "cTNJGjdsCK6snzqmNhTsumjp")
 
@@ -77,6 +79,7 @@ else:
 ### deleting items from StatUser
 print("Checking StatUser ...\r\n")
 cql_update_items = "select objectId, projectId , androidId from StatUser where androidId in " + exp_ip_col
+print(cql_update_items)
 todo_query_update_items = leancloud.Query.do_cloud_query(cql_update_items)
 todo_update_items = todo_query_update_items.results # 返回符合条件的 todo list 
 
@@ -102,7 +105,9 @@ else:
             # if each_oidpid['pid'].count("del_del_") > 0:
             #     pid_tobe = each_oidpid['pid'].replace("del_del_","del_")
             if each_oidpid['pid'].count("del_") == 0:
-                pid_tobe = "del_" + each_oidpid['pid']
+                now = datetime.datetime.now()
+                date_str = now.strftime('%Y%m%d_%H%M%S_')                 
+                pid_tobe = "del_" + date_str + each_oidpid['pid']
                 cql_update_items_II = "update StatUser set projectId = '" + pid_tobe + "' where objectId = '" + each_oidpid['oid'] + "'"
                 # print(cql_update_items_II)
                 todo_query_update_items_II = leancloud.Query.do_cloud_query(cql_update_items_II)
@@ -138,11 +143,13 @@ else:
 
         for each_oidpid_DAU in oid_pid_DAU:
             if each_oidpid_DAU['pid'].count("del_") == 0:
-                pid_tobe_DAU = "del_" + each_oidpid_DAU['pid']
+                now = datetime.datetime.now()
+                date_str = now.strftime('%Y%m%d_%H%M%S_')                  
+                pid_tobe_DAU = "del_" + date_str + each_oidpid_DAU['pid']
                 cql_get_DAU_oid_II = "update StatDAU set projectId = '" + pid_tobe_DAU + "' where objectId = '" + each_oidpid_DAU['oid'] + "'"
                 todo_query_get_DAU_oid_II = leancloud.Query.do_cloud_query(cql_get_DAU_oid_II)
                 todo_get_DAU_oid_II = todo_query_get_DAU_oid_II.results # 返回符合条件的 todo list 
-                msg_each_update = "StatUser item deleted !!! User id : " + dic['oid']
+                msg_each_update = "StatDAU item deleted !!! User id : " + dic['oid']
                 print(msg_each_update)                 
     except Exception, e:  
         print(str(e))
